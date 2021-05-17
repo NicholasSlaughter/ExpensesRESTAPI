@@ -1,4 +1,5 @@
 ﻿using Expenses.API.Entities;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -27,12 +28,17 @@ namespace Expenses.API.Repositories
         }
         public async Task CreateExpenseAsync(Expense expense)
         {
-            throw new NotImplementedException();
+            //Insert an expense into the expense collection
+            await expensesCollection.InsertOneAsync(expense);
         }
 
         public async Task DeleteExpenseAsync(Guid id)
         {
-            throw new NotImplementedException();
+            //Finds the expense to replace
+            var filter = filterBuilder.Eq(expenseToDelete => expenseToDelete.Id, id);
+
+            //Deletes the expense we found
+            await expensesCollection.DeleteOneAsync(filter);
         }
 
         public async Task<Expense> GetExpenseAsync(Guid id)
@@ -46,12 +52,17 @@ namespace Expenses.API.Repositories
 
         public async Task<IEnumerable<Expense>> GetExpensesAsync()
         {
-            throw new NotImplementedException();
+            //Returns entire collection of expenses
+            return await expensesCollection.Find(new BsonDocument()).ToListAsync();
         }
 
         public async Task UpdateExpenseAsync(Expense expense)
         {
-            throw new NotImplementedException();
+            //Finds the expense to replace
+            var filter = filterBuilder.Eq(existingExpense => existingExpense.Id, expense.Id);
+
+            //Replaces the expense
+            await expensesCollection.ReplaceOneAsync(filter, expense);
         }
     }
 }
